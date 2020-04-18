@@ -6,7 +6,7 @@
 #include "readline.h"
 
 int main(int argc , char **argv){
-    char a[100];
+    char a[100] = "";
     int i = 0;
     while(i <4){
     printf(" \n %d \n",read_line(a));
@@ -23,13 +23,13 @@ int read_line(char *str){
         p = fgetc(stdin);
         char a[1] = {(char)p};
         if (p != '\n') {
-            strcat(str , a);
+            strncat(str , a , 1);
         }
        i++;
     }while (p != EOF && p != '\n');
-    
+    printf("%s", str);
     if (p == EOF ) return -1;
     else {
-        return i;
+        return i - 1;
     }
 }
