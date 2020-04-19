@@ -30,6 +30,7 @@ int read_line(char *str){
     }while (p != EOF && p != '\n');
     // printf("%s \n", str);
     // printf("%s \n", ch);
+    strcpy(str , ch);
     if (p == EOF ) return -1;
     else {
         return i - 1;

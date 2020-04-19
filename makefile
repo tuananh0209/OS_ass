@@ -9,3 +9,25 @@ readline.o :  readline.h readline.c
 clean : 
 	rm -f *.o *gch
 
+# .PHONY : all , clean
+
+# TARGET = mygrep
+
+# HDRS+=findsubstr.h readline.h
+# CSRSC+= findsubstr.c readline.c main.c
+# OBJS := findsubstr.o readline.o
+
+# OBJS := $(pastsubst *.c ,*.o , $(CSRSC))
+
+# cc := gcc
+
+# all: ${TARGET}
+# ${TARGET}: $(OBJS)
+# 	@$(cc) $(OBJS) -o $(TARGET)
+
+# *.o: $(HDRS) 
+	
+# 	@#(cc) -c -o $@
+# clean:
+# 	rm -rf $*.o
+# 	rm -rf ${TARGET}
