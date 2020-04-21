@@ -7,6 +7,7 @@
 int main (int argc , char **argv){
     char line[100] ="";
     char agr[100] = "";
+  
     for (int i = 1 ; i < argc ; i++){
         if (i != 1) strcat(agr , " ");
         strcat(agr , argv[i]);
