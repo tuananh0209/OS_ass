@@ -954,7 +954,7 @@ int ob(struct bc_qc **currNode, string *p, int n)
 		// rating->AP = AP;
 		// rating->BP = BP;
 		float lot = changeString(p[4]);
-		cout << lv << endl;
+		// cout << lv << endl;
 		if (p[0] == "OS")
 		{
 			// cout << " OS BP" << rating->BP << " AP " << rating->AP << "lot " << lot << endl;
@@ -1012,12 +1012,11 @@ bool checkCb(string *p, int n)
 	return true;
 }
 
-struct deal *getDeal(struct deal *node, int id)
+struct deal *getDeal(struct deal *node, int id , float *lot , float *mnDeal , string *obOrOs)
 {
 	// cout <<"get" << endl;
-	static struct deal *deal = NULL;
-	if (deal != NULL && node->id != id)
-		deal = NULL;
+
+	
 	// cout << id << endl;
 
 	if (node == NULL)
@@ -1026,85 +1025,85 @@ struct deal *getDeal(struct deal *node, int id)
 	{
 		// cout << node->time << endl;
 
-		node->left = getDeal(node->left, id);
+		node->left = getDeal(node->left, id , lot , mnDeal , obOrOs);
 	}
 	else if (id > node->id)
 	{
 		// cout << node->time << endl;
 
-		node->right = getDeal(node->right, id);
+		node->right = getDeal(node->right, id , lot , mnDeal , obOrOs);
 	}
 	else
 	{
-		cout << node -> time << endl;
-		cout << "find" << endl;
-		deal = node;
+		if (node -> open == true){
+			*lot = node -> lot ;
+			*mnDeal = node-> mnDeal;
+			*obOrOs = node ->obOrOs;
+			node -> open = false;
+		}
+		
 		return node;
 	}
 	// cout << "node id " << temp -> id << endl;
-	return deal;
+	return node;
 }
 
 int cb(struct bc_qc **currNode, string *p, int n)
 {
 
-	// cout << 1<< endl;
+	cout << 1<< endl;
 	if (checkCb(p, n))
 	{
 		cout << "id" << p[2] << endl;
 		struct deal *deal = NULL;
 		struct bc_qc *last = *currNode;
+		float lot = 0 , mnDeal;
+		string obOrOs;
 		while (last != NULL)
 		{
-			deal = getDeal(last->linkDeal, stoi(p[2]));
+			getDeal(last->linkDeal, stoi(p[2]) , &lot , &mnDeal , &obOrOs);
 
-			if (deal != NULL)
+			if (lot != 0)
 			{
+				cout << " deal NULL " << endl;
 				break;
 			}
-			last = last->next;
+			last = last -> next;
 		}
-		cout << 3 << endl;
-
-		if (deal == NULL)
-		{
-			// cout << " deal NULL " << endl;
-			return -1;
-		}
-		cout << 3 << endl;
+		if (lot == 0) return -1;
+		// cout << 3 << endl;
 
 		if (last == NULL)
 			return -1;
 
-		
+
+
 		float BP, AP;
 		int timeR = 0;
 		getRating(last->link, stoi(p[1]), &BP, &AP, &timeR);
 		if (timeR == 0)
 			return -1;
-
-		
 		float l = 0;
 		// cout << " BC QC " << last ->bc << " " << last -> qc << endl;
 		// cout << "p[0] " << p[0]  << "deal -> " << deal->obOrOs << " id " << deal -> id << endl;
 		// preOrder(last -> linkDeal);
-		if (p[0] == "CS" && deal->obOrOs == "OB")
+		if (p[0] == "CS" && obOrOs == "OB")
 		{
 			// cout << "lot " << deal-> lot << " rating BP" << rating->BP << " mnDeal " << deal->mnDeal << endl;
 
-			l = (deal->lot * 100000 * BP) - deal->mnDeal;
+			l = (lot * 100000 * BP) - mnDeal;
 
 			if (last->qc != "USD")
 			{
 				l = l / float(AP);
 			}
 		}
-		else if (p[0] == "CB" && deal->obOrOs == "OS")
+		else if (p[0] == "CB" && obOrOs == "OS")
 		{
 			// cout << "lot " << deal->lot << " rating BP" << rating->AP << " mnDeal " << deal->mnDeal << endl;
 
 			// cout << " OB" << rating->AP << endl;
-			l = deal->mnDeal - (deal->lot * float(100000) * AP);
+			l = mnDeal - (lot * float(100000) * AP);
 			// cout << deal->mnDeal << endl;
 			// cout << l << endl;
 
