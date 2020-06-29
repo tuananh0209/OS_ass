@@ -31,12 +31,26 @@ struct bc_qc *BC_QC = NULL;
 int kyQuy = 0;
 bool opOrcl = false;
 bool setKyQuy = false;
-int lv = 0;
+int lv = 1;
 
-void clearRec(struct rating * node){
-	if (node != NULL){
+void clearRec(struct rating *node)
+{
+	if (node != NULL)
+	{
 		clearRec(node->left);
 		clearRec(node->right);
+		// cout << " 12312" << endl;
+
+		delete node;
+	}
+}
+
+void clearRecDeal(struct deal *node)
+{
+	if (node != NULL)
+	{
+		clearRecDeal(node->left);
+		clearRecDeal(node->right);
 		// cout << " 12312" << endl;
 
 		delete node;
@@ -50,6 +64,8 @@ ProcessData::ProcessData()
 	{
 		// cout << " 123"<< endl;
 		clearRec(BC_QC->link);
+		clearRecDeal(BC_QC->linkDeal);
+
 		next = BC_QC->next;
 		delete BC_QC;
 		BC_QC = next;
@@ -59,12 +75,14 @@ ProcessData::ProcessData()
 }
 ProcessData::~ProcessData()
 {
-	
+
 	struct bc_qc *next = BC_QC;
 	while (BC_QC != NULL)
 	{
 		// cout << " 123"<< endl;
 		clearRec(BC_QC->link);
+		clearRecDeal(BC_QC->linkDeal);
+
 		next = BC_QC->next;
 		delete BC_QC;
 		BC_QC = next;
@@ -72,7 +90,6 @@ ProcessData::~ProcessData()
 	BC_QC = NULL;
 	next = NULL;
 }
-
 
 void preOrder(struct rating *root)
 {
@@ -84,10 +101,23 @@ void preOrder(struct rating *root)
 	}
 }
 
-void print(struct bc_qc *currNode){
-	while (currNode != NULL){
-		cout << currNode->bc <<" " << currNode->qc << endl;
-		if (currNode->link == NULL) cout <<"NULL" << endl;
+void preOrder(struct deal *root)
+{
+	if (root != NULL)
+	{
+		cout << root->time << " " << root->id << " " << root->mnDeal << endl;
+		preOrder(root->left);
+		preOrder(root->right);
+	}
+}
+
+void print(struct bc_qc *currNode)
+{
+	while (currNode != NULL)
+	{
+		cout << currNode->bc << " " << currNode->qc << endl;
+		if (currNode->link == NULL)
+			cout << "NULL" << endl;
 		preOrder(currNode->link);
 		currNode = currNode->next;
 	}
@@ -144,36 +174,36 @@ int ProcessData::process(string line)
 			// print(BC_QC);
 			break;
 		case updCode:
-			res = updRating(&BC_QC , p , n);
+			res = updRating(&BC_QC, p, n);
 			// print(BC_QC);
 			break;
 		case delCode:
-			res = deleteRating(&BC_QC , p , n);
+			res = deleteRating(&BC_QC, p, n);
 			// print(BC_QC);
 			break;
-		case sdCode :
-			res = sd(p , n);
+		case sdCode:
+			res = sd(p, n);
 			break;
 		case cdCode:
 			res = cd();
 			break;
 		case slCode:
-			res = sl(p , n);
+			res = sl(p, n);
 			break;
-		case osCode :
-			res = ob(&BC_QC ,p , n);
-			print(BC_QC);
+		case osCode:
+			res = ob(&BC_QC, p, n);
+			// print(BC_QC);
 
-			cout << "asd" << endl;
+			// cout << "asd" << endl;
 			break;
 		case obCode:
 			res = ob(&BC_QC, p, n);
 			break;
 		case csCode:
-			res = cb(&BC_QC , p , n);
+			res = cb(&BC_QC, p, n);
 			break;
 		case cbCode:
-			res = cb(&BC_QC , p , n);
+			res = cb(&BC_QC, p, n);
 			break;
 		default:
 			res = -1;
@@ -255,26 +285,30 @@ bool checkString(string a)
 
 bool checkins_upd(string *sp, int n)
 {
-	if (n != 6) return false;
-	bool a = checkInt(sp[3]) && checkString(sp[2]) 
-	&& checkString(sp[1]) && checkFloat(sp[4]) && checkFloat(sp[5]);
-	if (a == false) return false;
+	if (n != 6)
+		return false;
+	bool a = checkInt(sp[3]) && checkString(sp[2]) && checkString(sp[1]) && checkFloat(sp[4]) && checkFloat(sp[5]);
+	if (a == false)
+		return false;
 	return true;
 }
 
 bool check_BC_PC(struct bc_qc *currNode, string bc, string qc)
 {
-	if (currNode == NULL) {
+	if (currNode == NULL)
+	{
 		// cout<< "false"<< endl;
 		return true;
 	}
 	while (currNode != NULL)
 	{
-		if (currNode->bc == bc && currNode->qc == qc){
+		if (currNode->bc == bc && currNode->qc == qc)
+		{
 			// cout << "false" << endl;
 			return false;
 		}
-		else{
+		else
+		{
 			// cout << "t" << endl;
 
 			currNode = currNode->next;
@@ -301,14 +335,17 @@ bool checkst_del(string *sp, int n)
 	{
 		if (checkInt(sp[3]) == false || checkInt(sp[4]) == false)
 			return false;
-		if (stoi(sp[3]) > stoi(sp[4])) return false;
+		if (stoi(sp[3]) > stoi(sp[4]))
+			return false;
 	}
 
 	return true;
 }
 
-struct bc_qc* getBC_QC(struct bc_qc *node , string BC , string QC){
-	if (node == NULL) return NULL;
+struct bc_qc *getBC_QC(struct bc_qc *node, string BC, string QC)
+{
+	if (node == NULL)
+		return NULL;
 	while (node != NULL)
 	{
 		if (node->bc == BC && node->qc == QC)
@@ -447,8 +484,8 @@ struct deal *rightRotateDeal(struct deal *y)
 	return x;
 }
 
-void getTime(string *p , int *timeA , int *timeB, int n){
-
+void getTime(string *p, int *timeA, int *timeB, int n)
+{
 
 	if (n == 3)
 	{
@@ -467,57 +504,63 @@ void getTime(string *p , int *timeA , int *timeB, int n){
 	}
 }
 
-int insert( struct bc_qc **curr,string *p , int n){
-	if (checkins_upd( p , n)){
-		if (check_BC_PC(*curr , p[1] , p[2]) == true) add_bc_qc(&*curr , p[1] , p[2]);
+int insert(struct bc_qc **curr, string *p, int n)
+{
+	if (checkins_upd(p, n))
+	{
+		if (check_BC_PC(*curr, p[1], p[2]) == true)
+			add_bc_qc(&*curr, p[1], p[2]);
 		struct bc_qc *last = *curr;
-		last = getBC_QC(last , p[1] , p[2]);
-		last->link = insertAVL(last->link , p);
+		last = getBC_QC(last, p[1], p[2]);
+		last->link = insertAVL(last->link, p);
 		return last->link->time;
 	}
 	return -1;
 }
 
-struct rating* newNode(string *p){
-	struct rating* newData = (struct rating*)malloc(sizeof(struct rating));
+struct rating *newNode(string *p)
+{
+	struct rating *newData = (struct rating *)malloc(sizeof(struct rating));
 	newData->time = stoi(p[3]);
 	newData->AP = changeString(p[5]);
 	newData->BP = changeString(p[4]);
 	newData->height = 1;
 	newData->left = NULL;
 	newData->right = NULL;
-	return(newData);
+	return (newData);
 }
 
-
-
-struct rating* insertAVL(struct rating *currNode , string *p){
+struct rating *insertAVL(struct rating *currNode, string *p)
+{
 	int a = stoi(p[3]);
-	float BP = changeString(p[4]);
-	float AP = changeString(p[5]);
 
-	if (currNode == NULL) return newNode(p);
+	if (currNode == NULL)
+		return newNode(p);
 	// struct rating *currNode = currNode;
 
 	if (a < currNode->time)
-		currNode->left = insertAVL(currNode->left , p);
-	else if (a > currNode->time) currNode->right = insertAVL(currNode->right,p);
-	else {
+		currNode->left = insertAVL(currNode->left, p);
+	else if (a > currNode->time)
+		currNode->right = insertAVL(currNode->right, p);
+	else
+	{
 		currNode->time = a;
-		currNode->BP = BP;
-		currNode->AP = AP;
+		currNode->BP = changeString(p[4]);
+
+		currNode->AP = changeString(p[5]);
+
 		return currNode;
 	}
 
-	currNode->height = 1 + max(height(currNode->left),height(currNode->right));
+	currNode->height = 1 + max(height(currNode->left), height(currNode->right));
 	// cout << currNode->height << endl;
 	int balance = getBalance(currNode);
 	// cout << "balalance " << balance << endl;
-	if (balance > 1 && a < currNode ->left->time)
-	return rightRotate(currNode);
+	if (balance > 1 && a < currNode->left->time)
+		return rightRotate(currNode);
 
 	if (balance < -1 && a > currNode->right->time)
-	return leftRotate(currNode);
+		return leftRotate(currNode);
 
 	if (balance > 1 && a > currNode->left->time)
 	{
@@ -525,13 +568,13 @@ struct rating* insertAVL(struct rating *currNode , string *p){
 		return rightRotate(currNode);
 	}
 
-	if (balance < -1 && a < currNode->right->time){
-		currNode->right = rightRotate(currNode ->right);
+	if (balance < -1 && a < currNode->right->time)
+	{
+		currNode->right = rightRotate(currNode->right);
 		return leftRotate(currNode);
 	}
 
 	return currNode;
-
 }
 
 struct rating *minValueNode(struct rating *node)
@@ -545,101 +588,109 @@ struct rating *minValueNode(struct rating *node)
 	return current;
 }
 
-struct rating * deleteNode(struct rating * node , int time){
-	
-	if (node == NULL) return node;
+struct rating *deleteNode(struct rating *node, int time)
+{
 
-	if (time < node-> time)
-		node->left = deleteNode(node -> left , time);
-	else if (time > node -> time ){
-		node -> right = deleteNode(node->right , time);
+	if (node == NULL)
+		return node;
+
+	if (time < node->time)
+		node->left = deleteNode(node->left, time);
+	else if (time > node->time)
+	{
+		node->right = deleteNode(node->right, time);
 	}
-	else {
+	else
+	{
 
-		if (node ->left == NULL || node -> right == NULL){
-			struct rating *temp = node -> left ? node -> left : node -> right;
-			
+		if (node->left == NULL || node->right == NULL)
+		{
+			struct rating *temp = node->left ? node->left : node->right;
 
-			if (temp == NULL){
+			if (temp == NULL)
+			{
 				temp = node;
 				node = NULL;
-				
-			} else {
+			}
+			else
+			{
 				*node = *temp;
-				
 			}
 			delete temp;
 		}
-		else 
+		else
 		{
-			struct rating *temp = minValueNode(node -> right);
-			node -> time = temp-> time;
-			node ->AP = temp->AP;
-			node ->BP = temp->BP;
+			struct rating *temp = minValueNode(node->right);
+			node->time = temp->time;
+			node->AP = temp->AP;
+			node->BP = temp->BP;
 
-			node -> right = deleteNode(node -> right , temp-> time);
-			
+			node->right = deleteNode(node->right, temp->time);
 		}
-
 	}
 
-	if (node == NULL) return node;
+	if (node == NULL)
+		return node;
 	// cout << "height " << node->height ;
-	node -> height = 1 + max(height(node -> left) , height(node -> right));
-	
+	node->height = 1 + max(height(node->left), height(node->right));
 
 	int balance = getBalance(node);
-	
 
-	if (balance > 1 && getBalance(node -> left) >= 0) return rightRotate(node);
-	
+	if (balance > 1 && getBalance(node->left) >= 0)
+		return rightRotate(node);
 
-	if (balance > 1 && getBalance(node -> left) < 0) {
-	 	node-> left = leftRotate(node -> left);
+	if (balance > 1 && getBalance(node->left) < 0)
+	{
+		node->left = leftRotate(node->left);
 		return rightRotate(node);
 	}
-	
 
-	if (balance < -1 && getBalance(node -> right) <= 0) return leftRotate(node);
-	
+	if (balance < -1 && getBalance(node->right) <= 0)
+		return leftRotate(node);
 
-	if (balance < -1 && getBalance(node -> right) > 0) {
-		node -> right = rightRotate(node -> right);
+	if (balance < -1 && getBalance(node->right) > 0)
+	{
+		node->right = rightRotate(node->right);
 		return leftRotate(node);
 	}
-	
 
 	return node;
 }
 
-void findRating(struct rating *node , int timeA , int timeB , string *a)
+void findRating(struct rating *node, int timeA, int timeB, string *a)
 {
 	// struct rating * temp = node;
-	if (node == NULL) return;
-	findRating(node->left , timeA , timeB , a);
-	if (node ->time >= timeA && node ->time <= timeB){
+	if (node == NULL)
+		return;
+	findRating(node->left, timeA, timeB, a);
+	if (node->time >= timeA && node->time <= timeB)
+	{
 		// cout << "id : " << node -> id << endl;
 
 		*a = *a + " " + to_string(node->time);
 	}
 
-	findRating(node->right , timeA , timeB , a);
+	findRating(node->right, timeA, timeB, a);
 	// return a;
-}  
+}
 
-
-int deleteRating(struct bc_qc **currNode , string *p ,int n){
-	if (checkst_del(p , n)) {
+int deleteRating(struct bc_qc **currNode, string *p, int n)
+{
+	if (checkst_del(p, n))
+	{
 		int timeA;
 		int timeB;
 		getTime(p, &timeA, &timeB, n);
 		// cout << "timA " << timeA <<  "" << "timeB " << timeB<< endl;
-		struct bc_qc * last = *currNode;
+		struct bc_qc *last = *currNode;
 
-		last = getBC_QC(last , p[1] , p[2]);
+		last = getBC_QC(last, p[1], p[2]);
 		string a;
-		
-		findRating( last->link , timeA , timeB , &a);
+		// if (n == 3){
+		// 	clearRec(last -> link);
+		// }
+
+		findRating(last->link, timeA, timeB, &a);
 		// cout << a << endl;
 		if (!a.empty())
 		{
@@ -652,7 +703,7 @@ int deleteRating(struct bc_qc **currNode , string *p ,int n){
 				int time = stoi(a.substr(lastpos, pos - lastpos));
 				// cout << "id stoi : " << id;
 				lastpos = pos + 1;
-				deleteNode(last -> link, time);
+				last->link = deleteNode(last->link, time);
 			} while (pos != -1);
 		}
 		// if (timeA == 4683520) deleteNode(last->link , 8105514);
@@ -662,31 +713,34 @@ int deleteRating(struct bc_qc **currNode , string *p ,int n){
 		// 	deleteNode(last->link, 8105514);
 		// }
 
-			if (last == NULL)
-				return -1;
+		if (last->link == NULL)
+			return -1;
 
-		return last -> link -> time;
+		return last->link->time;
 	}
 	return -1;
 }
 
-struct rating * updNode(struct rating *currNode , string *p , bool *upCheck ){
+struct rating *updNode(struct rating *currNode, string *p, bool *upCheck)
+{
 	int a = stoi(p[3]);
-	float BP = changeString(p[4]);
-	float AP = changeString(p[5]);
+
 	// *upCheck = true;
-	if (currNode == NULL) return currNode;
+	if (currNode == NULL)
+		return currNode;
 	// struct rating *currNode = currNode;
 
 	if (a < currNode->time)
-		currNode->left = updNode(currNode->left, p , upCheck);
+		currNode->left = updNode(currNode->left, p, upCheck);
 	else if (a > currNode->time)
-		currNode->right = updNode(currNode->right, p , upCheck);
+		currNode->right = updNode(currNode->right, p, upCheck);
 	else
 	{
 		*upCheck = true;
-		currNode->BP = BP;
-		currNode->AP = AP;
+		currNode->BP = changeString(p[4]);
+
+		currNode->AP = changeString(p[5]);
+
 		return currNode;
 	}
 	return currNode;
@@ -712,104 +766,98 @@ int updRating(struct bc_qc **currNode, string *p, int n)
 	return -1;
 }
 
-bool checkSd(string *p , int n){
-	if (n != 2) return false;
-	if (checkInt(p[2]) == false) return false;
+bool checkSd(string *p, int n)
+{
+	if (n != 2)
+		return false;
+	if (checkInt(p[2]) == false)
+		return false;
 	return true;
 }
 
-int sd(string *p,int n)
+int sd(string *p, int n)
 {
-	if (checkSd(p , n) == false) return -1;
-	if (opOrcl == true && stoi(p[1]) < kyQuy) return -1;
+	if (checkSd(p, n) == false)
+		return -1;
+	if (opOrcl == true && stoi(p[1]) < kyQuy)
+		return -1;
 	kyQuy = stoi(p[1]);
 	setKyQuy = true;
 	return 1;
 }
 
-int cd(){
+int cd()
+{
 	return kyQuy;
 }
 
 int sl(string *p, int n)
 {
-	if (n != 2 || checkInt(p[1]) == false) return -1;
-	if (setKyQuy == false) return -1;
+	if (n != 2 || checkInt(p[1]) == false)
+		return -1;
+	if (setKyQuy == false)
+		return -1;
 	lv = stoi(p[1]);
 	return kyQuy * lv;
 }
 
-bool checkOpen(string *p , int n){
-	if (n != 6) return false;
-	bool a = (checkString(p[1]) || checkString(p[2]) 
-	|| checkInt(p[3]) || checkInt(p[5]) || checkFloat(p[4])) && (p[1] == "USD" || p[2] == "USD");
-	if (a == false ) return false;
+bool checkOpen(string *p, int n)
+{
+	if (n != 6)
+		return false;
+	bool a = (checkString(p[1]) || checkString(p[2]) || checkInt(p[3]) || checkInt(p[5]) || checkFloat(p[4])) && (p[1] == "USD" || p[2] == "USD");
+	if (a == false)
+		return false;
 	return true;
 }
 
-struct deal * checkId(struct deal* node , int id , bool *check){
-	if (node == NULL) return node;
-	if (id  < node -> id ) node->left = checkId(node->left , id , check);
-	else if (id > node -> id) node->right = checkId(node -> right , id , check);
-	else {
+struct deal *checkId(struct deal *node, int id, bool *check)
+{
+	if (node == NULL)
+		return node;
+	if (id < node->id)
+		node->left = checkId(node->left, id, check);
+	else if (id > node->id)
+		node->right = checkId(node->right, id, check);
+	else
+	{
 		*check = false;
 		return node;
 	}
 	return node;
 }
 
-struct deal *newNodeDeal(string *p , float *mnDeal ,struct rating * rating)
+struct deal *newNodeDeal(string *p, float mnDeal)
 {
 	struct deal *newData = (struct deal *)malloc(sizeof(struct deal));
 	newData->time = stoi(p[3]);
 	newData->id = stoi(p[5]);
 	newData->lot = changeString(p[4]);
 	newData->obOrOs = p[0];
+	// cout << " p[ 0] " << p[0] << endl;
 	newData->open = true;
-	cout << " time deal " << stoi(p[3]) << "time rating" << rating-> time << endl;
-	if (p[0] == "OS") {
-		cout << " OS" << rating -> BP   << "lot " << newData -> lot<< endl;
+	newData->mnDeal = mnDeal;
+	// cout << " time deal " << stoi(p[3]) << "time rating" << rating-> time << endl;
 
-		*mnDeal = (newData->lot * 100000 *rating->BP);
-		newData->mnDeal = *mnDeal;
-
-		if (p[2] != "USD")
-		{
-			*mnDeal = *mnDeal / float(rating->BP);
-		}
-	}else {
-		cout << " OB" << rating->AP << endl;
-		*mnDeal = (newData-> lot * float(100000) * rating ->AP);
-
-		newData->mnDeal = *mnDeal;
-
-		if (p[2] != "USD")
-		{
-			*mnDeal = *mnDeal / float(rating->BP);
-		}
-	}
-	cout << " mnDeal " << *mnDeal << endl;
+	// cout << " mnDeal " << *mnDeal << endl;
 	newData->height = 1;
 	newData->left = NULL;
 	newData->right = NULL;
 	return (newData);
 }
 
-struct deal *insertDealAVL(struct deal *currNode, string *p , float *mnDeal , struct rating* rating)
+struct deal *insertDealAVL(struct deal *currNode, string *p, float mnDeal)
 {
-	int a = stoi(p[3]);
-	float BP = changeString(p[4]);
-	float AP = changeString(p[5]);
+	int a = stoi(p[5]);
 
 	if (currNode == NULL)
-		return newNodeDeal(p , mnDeal , rating);
+		return newNodeDeal(p, mnDeal);
 	// struct rating *currNode = currNode;
 
 	if (a < currNode->id)
-		currNode->left = insertDealAVL(currNode->left, p , mnDeal , rating);
+		currNode->left = insertDealAVL(currNode->left, p, mnDeal);
 	else if (a > currNode->id)
-		currNode->right = insertDealAVL(currNode->right, p , mnDeal , rating);
-
+		currNode->right = insertDealAVL(currNode->right, p, mnDeal);
 
 	currNode->height = 1 + max(heightDeal(currNode->left), heightDeal(currNode->right));
 	// cout << currNode->height << endl;
@@ -836,25 +884,14 @@ struct deal *insertDealAVL(struct deal *currNode, string *p , float *mnDeal , st
 	return currNode;
 }
 
-struct rating * getRating(struct rating * node , int time , float *BP , float *AP , int *timeR )
+struct rating *getRating(struct rating *node, int time, float *BP, float *AP, int *timeR)
 {
-	
 
-	
-	if (node == NULL) return node;
-	
+	if (node == NULL)
+		return node;
 
-	if (time < node ->time ){
-		if (node -> time  < time && time - node-> time < time - *timeR){
-			*BP = node->BP;
-			*AP = node->AP;
-			*timeR = node->time;
-		}
-	
-
-		node -> left = getRating(node ->left , time , BP , AP , timeR);
-	}
-	else if (time > node -> time ){
+	if (time < node->time)
+	{
 		if (node->time < time && time - node->time < time - *timeR)
 		{
 			*BP = node->BP;
@@ -862,157 +899,235 @@ struct rating * getRating(struct rating * node , int time , float *BP , float *A
 			*timeR = node->time;
 		}
 
-		node -> right = getRating(node -> right , time , BP , AP , timeR);
+		node->left = getRating(node->left, time, BP, AP, timeR);
 	}
-	else{
+	else if (time > node->time)
+	{
+		if (node->time < time && time - node->time < time - *timeR)
+		{
+			*BP = node->BP;
+			*AP = node->AP;
+			*timeR = node->time;
+		}
+
+		node->right = getRating(node->right, time, BP, AP, timeR);
+	}
+	else
+	{
 		*BP = node->BP;
-		*AP = node ->AP;
-		*timeR = node-> time;
+		*AP = node->AP;
+		*timeR = node->time;
 		return node;
 	}
-	
-	return node;
 
+	return node;
 }
 
 int ob(struct bc_qc **currNode, string *p, int n)
 {
 	if (checkOpen(p, n))
 	{
-		cout << 1 << endl;
+		// cout << 1 << endl;
 		struct bc_qc *last = *currNode;
 		last = getBC_QC(last, p[1], p[2]);
-		cout << 2 << endl;
+		// cout << 2 << endl;
 
 		if (last == NULL)
 			return -1;
 		bool check = true;
 		checkId(last->linkDeal, stoi(p[5]), &check);
-		cout << 3 << endl;
+		// cout << 3 << endl;
 
-		
 		if (check == false)
 			return -1;
 		float mnDeal = 0;
-		struct rating *rating;
+		
 
-		cout <<" time  start " << rating->time << endl;
-		float BP , AP ;
+		// cout <<" time  start " << rating->time << endl;
+		float BP, AP;
 		int timeR = 0;
-		getRating(last->link, stoi(p[3]) , &BP , &AP , &timeR);
-		if(timeR  == 0) return -1;
-		rating->time = timeR;
-		rating->AP = AP;
-		rating->BP = BP;
+		getRating(last->link, stoi(p[3]), &BP, &AP, &timeR);
+		if (timeR == 0)
+			return -1;
+		// cout <<  " time : " << timeR << endl;
+		// rating->time = timeR;
+		// rating->AP = AP;
+		// rating->BP = BP;
+		float lot = changeString(p[4]);
+		cout << lv << endl;
+		if (p[0] == "OS")
+		{
+			// cout << " OS BP" << rating->BP << " AP " << rating->AP << "lot " << lot << endl;
 
-		cout << rating -> time << endl;
-		last -> linkDeal = insertDealAVL(last->linkDeal, p, &mnDeal, rating);
-		cout << 5 << endl;
-		cout << mnDeal << endl;
-		return stoi(to_string(mnDeal));
+			mnDeal = (lot * 100000 * BP);
+
+			// if (p[2] != "USD")
+			// {
+			// 	mnDeal = mnDeal / float(rating->BP);
+			// }
+		}
+		else
+		{
+			// cout << " OB" << rating->AP << endl;
+			// cout << " OB BP" << rating->BP << " AP " << rating->AP << "lot " << lot << endl;
+
+			mnDeal = (lot * float(100000) * AP);
+
+			// if (p[2] != "USD")
+			// {
+			// 	*mnDeal = *mnDeal / float(rating->BP);
+			// }
+		}
+		float a = mnDeal;
+		if (last->qc != "USD")
+		{
+			mnDeal = mnDeal / float(BP);
+			if (mnDeal > kyQuy*float(lv))
+				return -1;
+		}
+		else
+		{
+			if (mnDeal > kyQuy * float(lv))
+				return -1;
+		}
+
+		// cout << rating -> time << endl;
+		last->linkDeal = insertDealAVL(last->linkDeal, p, a);
+		// cout << 5 << endl;
+		// cout << mnDeal << endl;
+		return ceil(mnDeal);
 	}
-	cout << "check" << endl;
+	// cout << "check" << endl;
 
 	return -1;
 }
 
-bool checkCb(string *p , int n){
-	if (n != 3) return -1;
+bool checkCb(string *p, int n)
+{
+	if (n != 3)
+		return -1;
 	bool a = checkInt(p[1]) || checkInt(p[2]);
-	if (a == false) return -1;
+	if (a == false)
+		return -1;
 	return true;
 }
 
-struct deal *getDeal(struct deal* node , int id){
-	cout <<"get" << endl;
+struct deal *getDeal(struct deal *node, int id)
+{
+	// cout <<"get" << endl;
+	static struct deal *deal = NULL;
+	if (deal != NULL && node->id != id)
+		deal = NULL;
+	// cout << id << endl;
 
-	if (node == NULL) return node ;
-	if (id < node -> id){
-		cout << node->time << endl;
+	if (node == NULL)
+		return node;
+	if (id < node->id)
+	{
+		// cout << node->time << endl;
 
 		node->left = getDeal(node->left, id);
 	}
-	else if (id > node -> id) {
-		cout << node->time << endl;
+	else if (id > node->id)
+	{
+		// cout << node->time << endl;
 
-		node -> right = getDeal(node ->right , id);
+		node->right = getDeal(node->right, id);
 	}
-	else{
+	else
+	{
 		cout << node -> time << endl;
+		cout << "find" << endl;
+		deal = node;
 		return node;
 	}
-	return node;
+	// cout << "node id " << temp -> id << endl;
+	return deal;
 }
 
 int cb(struct bc_qc **currNode, string *p, int n)
 {
-	cout << 1<< endl;
+
+	// cout << 1<< endl;
 	if (checkCb(p, n))
 	{
-
-		struct deal *deal = NULL ;
+		cout << "id" << p[2] << endl;
+		struct deal *deal = NULL;
 		struct bc_qc *last = *currNode;
-		while (last != NULL){
+		while (last != NULL)
+		{
 			deal = getDeal(last->linkDeal, stoi(p[2]));
-			if (deal == NULL){
-				cout << NULL;
-			}
 
-			if (deal != NULL){
+			if (deal != NULL)
+			{
 				break;
 			}
-			last = last -> next;
+			last = last->next;
+		}
+		cout << 3 << endl;
+
+		if (deal == NULL)
+		{
+			// cout << " deal NULL " << endl;
+			return -1;
 		}
 		cout << 3 << endl;
 
 		if (last == NULL)
 			return -1;
 
-		struct rating * rating;
+		
 		float BP, AP;
 		int timeR = 0;
 		getRating(last->link, stoi(p[1]), &BP, &AP, &timeR);
 		if (timeR == 0)
 			return -1;
 
-		rating->time = timeR;
-		rating->AP = AP;
-		rating->BP = BP;
+		
 		float l = 0;
-		cout << "rating : " << rating-> time << endl;
-
+		// cout << " BC QC " << last ->bc << " " << last -> qc << endl;
+		// cout << "p[0] " << p[0]  << "deal -> " << deal->obOrOs << " id " << deal -> id << endl;
+		// preOrder(last -> linkDeal);
 		if (p[0] == "CS" && deal->obOrOs == "OB")
 		{
-			
+			// cout << "lot " << deal-> lot << " rating BP" << rating->BP << " mnDeal " << deal->mnDeal << endl;
 
-			l = (deal -> lot * 100000 * rating->BP) - deal ->mnDeal ;
-		
+			l = (deal->lot * 100000 * BP) - deal->mnDeal;
 
-			if (last-> qc != "USD")
+			if (last->qc != "USD")
 			{
-				l = l / float(rating->AP);
+				l = l / float(AP);
 			}
 		}
 		else if (p[0] == "CB" && deal->obOrOs == "OS")
 		{
+			// cout << "lot " << deal->lot << " rating BP" << rating->AP << " mnDeal " << deal->mnDeal << endl;
 
-			cout << " OB" << rating->AP << endl;
-			l = deal ->mnDeal - (deal->lot * float(100000) * rating->AP);
-			cout << deal->mnDeal << endl;
-			cout << l << endl;
+			// cout << " OB" << rating->AP << endl;
+			l = deal->mnDeal - (deal->lot * float(100000) * AP);
+			// cout << deal->mnDeal << endl;
+			// cout << l << endl;
 
-			if ( last->qc != "USD")
+			if (last->qc != "USD")
 			{
-				l = l / float(rating->AP);
+				l = l / float(AP);
 			}
-		} else return -1;
-		cout << 2 << endl;
-		cout << l<< endl;
+		}
+		else
+		{
+			// cout << 5 << endl;
+
+			return -1;
+		}
+		// cout << 2 << endl;
+		// cout << l<< endl;
 		kyQuy += l;
 		// if (kyQuy <= 0) closeAll(&BC_QC);
-		return stoi(to_string(l));
-
+		if (l < 0)
+			return floor(l);
+		else
+			return ceil(l);
 	}
-	
+
 	return -1;
 }
